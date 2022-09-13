@@ -1,13 +1,17 @@
 const route = require("express").Router();
-const { addUser, getAll, getById, updateUser,deleteUser } = require("../controller/user.control");
+const { addUser, getAll, getById, updateUser,deleteUser , getUserForLogin} = require("../controller/user.control");
+const { authUser} = require("../utils/token_jwt");
 
-route.get("/users", getAll);
-route.get("/user/:id", getById);
+route.post("/login", getUserForLogin);
 
-route.post("/users", addUser);
+route.get("/users",authUser, getAll);
 
-route.put("/user/:id", updateUser);
+route.get("/user/:id", authUser, getById);
 
-route.delete("/user/:id", deleteUser);
+route.post("/users", authUser, addUser);
+
+route.put("/user/:id", authUser, updateUser);
+
+route.delete("/user/:id", authUser, deleteUser);
 
 module.exports = route;

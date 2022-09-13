@@ -1,5 +1,6 @@
 const db = require("../config/firebase_admin");
 const Usuarios = require("../model/user.model");
+const {generateToken} = require("../utils/token_jwt")
 
 const collection = db.collection("usuarios");
 
@@ -40,6 +41,46 @@ const getById = async (req, res, next) => {
 	}
 };
 
+const getUserForLogin = async (req, res, next) => {
+	try {
+		const userList = [];
+		const { nome, email } = req.body;
+		await collection
+			.where("nome", "==", `${nome}`)
+			.get()
+			.then((snap) => {
+				snap.forEach((doc) => {
+					const user = new Usuarios(
+						doc.id,
+						doc.data().nome,
+						doc.data().email,
+						doc.data().agenda
+					);
+					userList.push(user);
+				});
+			})
+			.catch((err) => res.send({ message: err.message }));
+		const user = userList[0];
+
+		const mail = new String(user.email);
+		const reMail = new String(email);
+
+		if (
+			reMail.localeCompare(mail) > 0 ||
+			reMail.localeCompare(email) < 0
+		) {
+			console.log(mail+" "+ reMail)
+			console.log(email.localeCompare(user.email));
+			res.status(404).send({ message: "usuario não encontrado" });
+			return;
+		}
+		res.send({ token: `Bearer ${generateToken(user.email)}`});
+	} catch (error) {
+		console.log(error);
+		res.status(400).send({ message: error.message });
+	}
+};
+
 const addUser = async (req, res, next) => {
 	try {
 		const data = req.body;
@@ -64,9 +105,9 @@ const updateUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
 	try {
-        const id = req.params.id;
-        await collection.doc(id).delete();
-        res.send("Usuario deletado com sucesso!!")
+		const id = req.params.id;
+		await collection.doc(id).delete();
+		res.send("Usuario deletado com sucesso!!");
 	} catch (error) {
 		res.status(400).send({ message: error.message });
 	}
@@ -77,5 +118,6 @@ module.exports = {
 	getById,
 	addUser,
 	updateUser,
-    deleteUser
+	deleteUser,
+	getUserForLogin,
 };
