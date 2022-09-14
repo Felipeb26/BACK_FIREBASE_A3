@@ -5,7 +5,7 @@ const cron = require("./src/utils/timer_delete")
 
 process.setMaxListeners(0)
 
-const port = process.env.HOST_PORT;
+const port = process.env.PORT;
 const host = process.env.HOST_NAME;
 
 const app = express();
