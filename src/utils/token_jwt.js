@@ -1,9 +1,7 @@
 require("dotenv").config();
-const bycript = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const secret = process.env.ACESS_TOKEN_SECRET;
-const expires = process.env.EXPIRES;
 
 const generateToken = (pass) => {
 	const acessToken = jwt.sign({ id: pass }, secret, { expiresIn: 60000 });

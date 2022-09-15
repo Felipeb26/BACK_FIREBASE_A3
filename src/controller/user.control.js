@@ -17,8 +17,9 @@ const getAll = async (req, res, next) => {
 					it.id,
 					it.data().nome,
 					it.data().email,
+					it.data().senha,
 					it.data().agenda,
-					it.data().roles
+					it.data().role,
 				);
 				userList.push(users);
 			});
