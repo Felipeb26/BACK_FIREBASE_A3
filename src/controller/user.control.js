@@ -1,6 +1,7 @@
 const db = require("../config/firebase_admin");
+const role_list = require("../config/roles_list");
 const Usuarios = require("../model/user.model");
-const {generateToken} = require("../utils/token_jwt")
+const { generateToken } = require("../utils/token_jwt");
 
 const collection = db.collection("usuarios");
 
@@ -16,7 +17,8 @@ const getAll = async (req, res, next) => {
 					it.id,
 					it.data().nome,
 					it.data().email,
-					it.data().agenda
+					it.data().agenda,
+					it.data().roles
 				);
 				userList.push(users);
 			});
@@ -54,7 +56,8 @@ const getUserForLogin = async (req, res, next) => {
 						doc.id,
 						doc.data().nome,
 						doc.data().email,
-						doc.data().agenda
+						doc.data().agenda,
+						doc.data().roles
 					);
 					userList.push(user);
 				});
@@ -65,16 +68,13 @@ const getUserForLogin = async (req, res, next) => {
 		const mail = new String(user.email);
 		const reMail = new String(email);
 
-		if (
-			reMail.localeCompare(mail) > 0 ||
-			reMail.localeCompare(email) < 0
-		) {
-			console.log(mail+" "+ reMail)
+		if (reMail.localeCompare(mail) > 0 || reMail.localeCompare(email) < 0) {
+			console.log(mail + " " + reMail);
 			console.log(email.localeCompare(user.email));
 			res.status(404).send({ message: "usuario não encontrado" });
 			return;
 		}
-		res.send({ token: `Bearer ${generateToken(user.email)}`});
+		res.send({ token: `Bearer ${generateToken(user.email)}` });
 	} catch (error) {
 		console.log(error);
 		res.status(400).send({ message: error.message });
@@ -83,8 +83,23 @@ const getUserForLogin = async (req, res, next) => {
 
 const addUser = async (req, res, next) => {
 	try {
-		const data = req.body;
-		await collection.doc().set(data);
+		const { nome, email, senha, agenda, role } = req.body;
+
+		if (role == undefined || null &&
+			nome == undefined || null &&
+			email == undefined || null &&
+			senha == undefined || null &&
+			agenda == undefined || null) {
+			res.status(400).send({ message: "todos os campos devem ser informados" });
+			return;
+		}
+
+		console.log(
+			nome + " " + email + " " + senha + " " + agenda + " " + role
+		);
+
+		const user = { nome, email, senha, agenda, role };
+		await collection.doc().set(user);
 		res.send({ message: "salvo com sucesso" });
 	} catch (error) {
 		res.status(400).send({ message: error.message });

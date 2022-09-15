@@ -1,10 +1,12 @@
 require("dotenv").config();
+const bycript = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const secret = process.env.ACESS_TOKEN_SECRET;
+const expires = process.env.EXPIRES;
 
 const generateToken = (pass) => {
-	const acessToken = jwt.sign(pass, secret);
+	const acessToken = jwt.sign({ id: pass }, secret, { expiresIn: 60000 });
 	return acessToken;
 };
 
@@ -14,12 +16,12 @@ const authUser = async (req, res, next) => {
 
 	if (token == null) {
 		res.status(401).send({ message: "unathorized" });
-        return;
+		return;
 	}
 	if (authHeader.toLowerCase().indexOf("bearer") == -1) {
-        res.status(401).send({message:"token invalido"});
-        return;
-    }
+		res.status(401).send({ message: "token invalido" });
+		return;
+	}
 	jwt.verify(token, process.env.ACESS_TOKEN_SECRET, (err, user) => {
 		if (err) {
 			return res.send({ message: "token invalido" });
