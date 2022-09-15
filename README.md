@@ -17,3 +17,9 @@ pacotes utilizadas:
     jsonwebtoken      ^8.5.1",
     node-cron         ^3.0.2",
     nodemon           ^2.0.19"
+
+Url Host api:
+
+    https://firebase-a3-felipes.cyclic.app/
+
+    https://backfirebasea3-production.up.railway.app/
